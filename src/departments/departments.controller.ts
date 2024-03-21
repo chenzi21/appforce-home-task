@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Delete, Get, Res } from '@nestjs/common';
+import { Controller, Post, Body, Param, Delete, Get, Res, BadRequestException } from '@nestjs/common';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { isUUID } from 'class-validator';
@@ -14,15 +14,13 @@ export class DepartmentsController {
 
   @Post()
   create(@Body() createDepartmentDto: CreateDepartmentDto) {
-    return this.departmentsService.insert(createDepartmentDto);
+    return this.departmentsService.create(createDepartmentDto);
   }
 
   @Delete(':id')
-  remove(@Res({ passthrough: true }) res: Response, @Param('id') id: string) {
+  remove(@Param('id') id: string) {
     if (!isUUID(id)) {
-      // data is understood, but not valid, so returning 422 (Unprocessable Entity) status code
-      res.status(422).send();
-      return;
+      throw new BadRequestException()
     }
     return this.departmentsService.delete(id);
   }

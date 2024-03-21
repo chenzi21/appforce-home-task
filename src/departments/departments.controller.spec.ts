@@ -2,17 +2,25 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DepartmentsController } from './departments.controller';
 import { DepartmentsService } from './departments.service';
 import { response } from 'express';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Departments } from './entities/department.entity';
+import { Repository } from 'typeorm';
+import { createMock } from '@golevelup/ts-jest';
+import { isUUID } from 'class-validator';
 
 describe('DepartmentsController', () => {
   let controller: DepartmentsController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [TypeOrmModule.forFeature([Departments])],
-      controllers: [DepartmentsController],
-      providers: [DepartmentsService],
+      providers: [
+        DepartmentsService,
+        {
+          provide: getRepositoryToken(Departments),
+          useValue: createMock<Repository<Departments>>(),
+        },
+      ],
+      controllers: [DepartmentsController]
     }).compile();
 
     controller = module.get<DepartmentsController>(DepartmentsController);
@@ -22,21 +30,20 @@ describe('DepartmentsController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('insert HR', () => {
-    expect(controller.create({ name: "HR", description: "manages human resources" })).toHaveReturned();
+  it('insert HR', async () => {
+    const res = await controller.create({ name: "HR", description: "manages human resources" });
+
+    expect(isUUID(res.id)).toBeTruthy();
   });
 
-  it('find all', () => {
-    expect(controller.findAll()).toHaveReturned();
+  it('find all', async () => {
+    expect(await controller.findAll()).toHaveReturned();
   });
 
   it('insert and delete Engineeering', async () => {
-    const { id } = await controller.create({ name: "Engineering", description: "the engineering department" })
-    if (typeof id !== "string") throw new Error;
-    expect(controller.remove(response, id)).toHaveReturned();
+    const result = await controller.create({ name: "Engineering", description: "the engineering department" })
+    expect(controller.remove(result.id)).toHaveReturned();
 
-    const res = response;
-    await controller.remove(res, "bad_input");
-    expect(res.statusCode).toEqual(422);
+    expect(await controller.remove("bad_input")).toThrow();
   });
 });

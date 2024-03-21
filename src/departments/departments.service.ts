@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Departments } from './entities/department.entity';
@@ -11,17 +11,11 @@ export class DepartmentsService {
     @InjectRepository(Departments) private readonly departmentsRepository: Repository<Departments>,
   ) { }
   async create(createDepartmentDto: CreateDepartmentDto) {
-    try {
-      const res = await this.departmentsRepository.insert(createDepartmentDto);
-      console.log(res);
-      return res.identifiers[0];
-    } catch (e: any) {
-      console.log(e)
-    }
+    return this.departmentsRepository.insert(createDepartmentDto);
   }
 
   findAll() {
-    return this.departmentsRepository.createQueryBuilder("d").select("d.name, d.description, COUNT(u.id) as users_count").leftJoin("users", "u", "u.departmentId = d.id").groupBy("d.name, d.description").execute();
+    return this.departmentsRepository.createQueryBuilder("d").select("d.id, d.name, d.description, COUNT(u.id) as users_count").leftJoin("users", "u", "u.department_id = d.id").groupBy("d.id, d.name, d.description").execute();
   }
 
   delete(id: string) {

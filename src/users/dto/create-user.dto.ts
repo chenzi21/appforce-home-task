@@ -1,37 +1,41 @@
 import {
     IsAlphanumeric,
     IsEmail,
+    IsEmpty,
     IsNotEmpty,
     IsString,
     MinLength,
+    ValidateIf,
 } from 'class-validator';
 
 export class CreateUserDto {
     @MinLength(2, { message: 'first_name must have atleast 2 characters.' })
     @IsNotEmpty()
-    @IsAlphanumeric(null, {
-        message: 'Username does not allow other than alpha numeric chars.',
+    @IsAlphanumeric(undefined, {
+        message: 'first_name does not allow other than alpha numeric chars.',
     })
     first_name: string;
 
     @IsNotEmpty()
     @MinLength(2, { message: 'last_name must have atleast 2 characters.' })
-    @IsAlphanumeric(null, {
-        message: 'Username does not allow other than alpha numeric chars.',
+    @IsAlphanumeric(undefined, {
+        message: 'last_name does not allow other than alpha numeric chars.',
     })
     last_name: string;
 
     @IsNotEmpty()
-    @IsEmail(null, { message: 'Please provide valid Email.' })
+    @IsEmail(undefined, { message: 'Please provide valid email.' })
     email: string;
 
     @IsNotEmpty()
     @IsString({ message: 'Please provide a department_id.' })
     department_id: string;
 
-    @IsString({ message: "Title  must be of type string." })
-    title: string;
+    @ValidateIf((_, val) => !!val)
+    @IsString({ message: "title must be of type string." })
+    title?: string | null;
 
-    @IsString({ message: "Image  must be of type string." })
-    image: string;
+    @ValidateIf((_, val) => !!val)
+    @IsString({ message: "image must be of type string." })
+    image?: string | null;
 }

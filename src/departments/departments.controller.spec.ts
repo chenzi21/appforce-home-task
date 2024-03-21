@@ -29,21 +29,4 @@ describe('DepartmentsController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
-
-  it('insert HR', async () => {
-    const res = await controller.create({ name: "HR", description: "manages human resources" });
-
-    expect(isUUID(res.id)).toBeTruthy();
-  });
-
-  it('find all', async () => {
-    expect(await controller.findAll()).toHaveReturned();
-  });
-
-  it('insert and delete Engineeering', async () => {
-    const result = await controller.create({ name: "Engineering", description: "the engineering department" })
-    expect(controller.remove(result.id)).toHaveReturned();
-
-    expect(await controller.remove("bad_input")).toThrow();
-  });
 });

@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DepartmentsController } from './departments.controller';
 import { DepartmentsService } from './departments.service';
-import { response } from 'express';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Departments } from './entities/department.entity';
 import { Repository } from 'typeorm';
 import { createMock } from '@golevelup/ts-jest';
-import { isUUID } from 'class-validator';
 
 describe('DepartmentsController', () => {
   let controller: DepartmentsController;
